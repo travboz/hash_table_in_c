@@ -97,4 +97,20 @@ Output:
 */
 static int ht_hash(const char *s, const int large_prime, const int num_buckets);
 
+// Preventing collisions by using open addressing and double hashing
+/*
+Double hashing to reduce collisions using the following structure:
+
+    `index = (hash_a(string) + i * (hash_b(string) + 1)) % num_buckets`
+
+where `i` represents the number of collisions that have occurred.
+If zero collisions occur we can notice the following:
+
+    `index = (hash_a(string) % num_buckets`
+
+`i = 0` removes the use of hash_b.
+
+*/
+static int ht_get_hash(const char *s, const int num_buckets, const int attempt);
+
 #endif /* HASH_TABLE_H */
