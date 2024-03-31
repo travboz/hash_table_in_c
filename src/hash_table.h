@@ -69,4 +69,32 @@ Output:
 */
 static void ht_del_item(ht_item *i);
 
+/*
+Hash the string to insert using a generic string hashing function.
+`large_prime` is chosen to be larger than the ASCII alphabet size
+as that is how large our alphabet is (so, > 128).
+
+The hashing function follows this pseduocode:
+function hash(string, a, num_buckets):
+    hash = 0
+    string_len = length(string)
+    for i = 0, 1, ..., string_len:
+        hash += (a ** (string_len - (i+1))) * char_code(string[i])
+    hash = hash % num_buckets
+    return hash
+
+1. Convert the string to a large integer.
+2. Reduce the size of that integer to a fixed range by taking its remainder `mod num_buckets`
+where `num_buckets` is how many buckets in our hash table.
+
+Input:
+    const char *s: string to hash
+    const int large_prime: a prime number larger than the size of the alphabet used in the string
+    const int num_buckets: the number of buckets in the hash table
+
+Output:
+    int: the newly hashed value for the string s.
+*/
+static int ht_hash(const char *s, const int large_prime, const int num_buckets);
+
 #endif /* HASH_TABLE_H */

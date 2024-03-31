@@ -8,7 +8,7 @@ static ht_item *ht_new_item(const char *k, const char *v)
 {
     // we make a pointer the size of an item
     ht_item *i = malloc(sizeof(ht_item));
-    i->key = strdup(k); // because it
+    i->key = strdup(k);
     i->value = strdup(v);
     return i;
 }
@@ -45,4 +45,18 @@ static void ht_del_item(ht_item *i)
     free(i->key);
     free(i->value);
     free(i);
+}
+
+static int ht_hash(const char *s, const int large_prime, const int num_buckets)
+{
+    long hash = 0;
+    const int len_s = strlen(s);
+
+    for (int i = 0; i < len_s; i++)
+    {
+        hash += (long)pow(large_prime, len_s - (i + 1)) * s[i];
+        hash = hash % num_buckets;
+    }
+
+    return (int)hash;
 }
