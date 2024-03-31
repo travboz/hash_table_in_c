@@ -113,4 +113,48 @@ If zero collisions occur we can notice the following:
 */
 static int ht_get_hash(const char *s, const int num_buckets, const int attempt);
 
+/*
+Inserting into the hash table by calculating the hash for the new item,
+checking if the bucket at that hash is empty (NULL) and, if not empty, then
+double hashing to find a new bucket. If empty, just putting the item
+into the bucket.
+
+Input:
+    ht_hash_table *ht: pointer to the hash table to insert into
+    const char *key: key of new item
+    const char *value: value of new item
+
+Output:
+    None
+*/
+void ht_insert(ht_hash_table *ht, const char *key, const char *value);
+
+/*
+Search for the hash in the hash table and if it's not there, linearly search
+for it.
+
+Input:
+    ht_hash_table *ht: pointer to the hash table to search
+    const char *key: key of item
+    const char *value: value of item
+
+Output:
+    None
+*/
+char *ht_search(ht_hash_table *ht, const char *key);
+
+/*
+Instead of deleting the item from the table, and thereby breaking the linear
+probing chain, we mark the key-value pair as deleted and modify the search
+and insert functions with checks for deletion markers.
+
+Input:
+    ht_hash_table *ht: pointer to the hash table to search
+    const char *key: key of item
+
+Output:
+    None
+*/
+void ht_delete(ht_hash_table *ht, const char *key);
+
 #endif /* HASH_TABLE_H */

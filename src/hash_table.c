@@ -8,6 +8,9 @@
 #define HT_PRIME_1 129
 #define HT_PRIME_2 131
 
+// value representing a deleted item
+static ht_item HT_DELETED_ITEM = {NULL, NULL};
+
 static ht_item *ht_new_item(const char *k, const char *v)
 {
     // we make a pointer the size of an item
@@ -71,4 +74,86 @@ static int ht_get_hash(const char *s, const int num_buckets, const int attempt)
     const int hash_b = ht_hash(s, HT_PRIME_2, num_buckets);
 
     return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
+}
+
+void ht_insert(ht_hash_table *ht, const char *key, const char *value)
+{
+    ht_item *item = ht_new_item(key, value);         // make a new item from the arguments
+    int index = ht_get_hash(item->key, ht->size, 0); // compute the hash with the new item's key and the current max size
+
+    ht_item *cur_item = ht->items[index]; // retrieve the item with that index ^
+    int i = 1;                            // initiate the hash collision to 1
+    while (cur_item != NULL)              // if there's a hash collision, move until there is a free spot
+    {
+        if (cur_item != &HT_DELETED_ITEM)
+        {
+            if (strcmp(cur_item->key, key) == 0)
+            {
+                ht_del_item(cur_item);
+                ht->items[index] = item;
+                return;
+            }
+        }
+        // get the calculate a new hash (using hash_b this time)
+        index = ht_get_hash(item->key, ht->size, i);
+        cur_item = ht->items[index]; // get the current item
+        i++;                         // increase hash count
+    }
+    ht->items[index] = item; // we've found a free spot, so store out new item there
+    ht->count++;             // hash_table now holds another item so we increase the current count of items
+}
+
+char *ht_search(ht_hash_table *ht, const char *key)
+{
+    int index = ht_get_hash(key, ht->size, 0); // calculate the index (hash) of the item with the key we're looking for
+    ht_item *item = ht->items[index];          // grab the item at the index
+
+    // in case of hashes we iterate through
+    int i = 1;
+    while (item != NULL)
+    {                                 // while there are still items ahead
+        if (item != &HT_DELETED_ITEM) // and the current item hasn't been marked as deleted
+        {
+            if (strcmp(item->key, key) == 0)
+            { // if our key matches the item's key
+                return item->value;
+            }
+        }
+        // move to the next item
+        index = ht_get_hash(key, ht->size, i);
+        item = ht->items[index];
+        i++;
+    }
+    return NULL; // if we don't find the item
+}
+
+void ht_delete(ht_hash_table *ht, const char *key)
+{
+    // get the item
+    int index = ht_get_hash(key, ht->size, 0);
+    ht_item *item = ht->items[index];
+
+    // iterate through the buckets and find the item
+    int i = 1;
+    while (item != NULL)
+    {
+        // if the address of the item doesn't point to a HT_DELETED_ITEM
+        if (item != &HT_DELETED_ITEM)
+        {
+            // if the current item's key is the same as the one we're looking for
+            if (strcmp(item->key, key) == 0)
+            {
+                // delete it
+                ht_del_item(item);
+                // point that bucket to deleted
+                ht->items[index] = &HT_DELETED_ITEM;
+            }
+        }
+        // move to the next item
+        index = ht_get_hash(key, ht->size, i);
+        item = ht->items[index];
+        i++;
+    }
+    // we've deleted an item so reduce the count
+    ht->count--;
 }
