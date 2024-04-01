@@ -14,6 +14,7 @@ typedef struct
     int size;
     int count;
     ht_item **items; // array of pointers to items
+    int base_size;
 } ht_hash_table;
 
 /*
